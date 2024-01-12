@@ -1,0 +1,149 @@
+﻿<Window
+    x:Class="SMMS_Downloader.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:SMMS_Downloader.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:ext="clr-namespace:SMMS_Downloader.Extensions"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:local="clr-namespace:SMMS_Downloader"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="SM.MS Downloaded v1.0"
+    Width="1200"
+    Height="800"
+    FontSize="16"
+    Loaded="Window_Loaded"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
+    <Window.Resources>
+        <converters:StateToBrushConverter x:Key="StateToBrushConverter" />
+        <converters:StateToTextConverter x:Key="StateToTextConverter" />
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Vertical">
+            <TextBlock Margin="6,6,6,0" Text="账号" />
+            <TextBox Margin="6,6,6,0" Text="{Binding Account}" />
+            <TextBlock Margin="6,6,6,0" Text="密码" />
+            <PasswordBox
+                Margin="6,6,6,0"
+                VerticalAlignment="Center"
+                ext:PassWordExtensions.PassWord="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Cursor="IBeam">
+                <i:Interaction.Behaviors>
+                    <ext:PasswordBehavior />
+                </i:Interaction.Behaviors>
+            </PasswordBox>
+            <Button
+                Height="36"
+                Margin="6,6,6,0"
+                Click="ButtonLogin_Click"
+                Content="登录"
+                Cursor="" />
+            <Button
+                Height="36"
+                Margin="6,6,6,0"
+                Click="ButtonRead_Click"
+                Content="读取列表" />
+            <Button
+                Height="36"
+                Margin="6,6,6,0"
+                Click="ButtonDownload_Click"
+                Content="下载图片" />
+            <Border
+                Margin="0,6,0,0"
+                BorderBrush="Black"
+                BorderThickness="0,1,0,0"
+                Opacity="0.1" />
+            <TextBlock
+                Margin="6,6,6,0"
+                Text="请不要多点“下载图片”按钮，懒得写多线程锁了。下载发生错误之后可以再点。"
+                TextWrapping="Wrap" />
+            <Border
+                Margin="0,6,0,0"
+                BorderBrush="Black"
+                BorderThickness="0,1,0,0"
+                Opacity="0.1" />
+            <TextBlock
+                Margin="6,6,6,0"
+                Text="下载的文件保存在images文件夹下了，文件名用的是服务器的那个文件名，不是原始文件名，因为重名太多不好处理。如果需要，可以在smms.db这个sqlite数据库里找到文件名的对应关系，自己写个python脚本处理吧。"
+                TextWrapping="Wrap" />
+            <Border
+                Margin="0,6,0,0"
+                BorderBrush="Black"
+                BorderThickness="0,1,0,0"
+                Opacity="0.1" />
+            <TextBlock
+                Margin="6,6,6,0"
+                Text="理论上还应该修改文件的创建时间为图片上传时间，懒了（"
+                TextWrapping="Wrap" />
+        </StackPanel>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <DataGrid
+                Grid.Column="1"
+                AutoGenerateColumns="False"
+                IsReadOnly="True"
+                ItemsSource="{Binding Images}">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="状态">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border Background="{Binding State, Converter={StaticResource StateToBrushConverter}}">
+                                    <TextBlock
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Text="{Binding State, Converter={StaticResource StateToTextConverter}}" />
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Binding="{Binding Name}" Header="文件名" />
+                    <DataGridTextColumn Binding="{Binding Size}" Header="大小" />
+                    <DataGridTextColumn Binding="{Binding Width}" Header="宽" />
+                    <DataGridTextColumn Binding="{Binding Height}" Header="高" />
+                    <DataGridTextColumn Binding="{Binding UploadDate}" Header="上传时间" />
+                    <DataGridTemplateColumn Header="操作">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock>
+                                        <Hyperlink Click="LinkCopy_Click">
+                                            <Run Text="复制链接" />
+                                        </Hyperlink>
+                                    </TextBlock>
+                                    <TextBlock Margin="4,0,0,0">
+                                        <Hyperlink Click="LinkView_Click">
+                                            <Run Text="查看图像" />
+                                        </Hyperlink>
+                                    </TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <Border
+                Grid.Row="1"
+                Margin="4,4"
+                Background="White">
+                <TextBlock VerticalAlignment="Center">
+                    <Run Text="共" />
+                    <Run Text="{Binding Total}" />
+                    <Run Text="页，已加载" />
+                    <Run Text="{Binding LoadedPage}" />
+                    <Run Text="页，" />
+                    <Run Text="{Binding LoadedCount}" />
+                    <Run Text="个条目" />
+                </TextBlock>
+            </Border>
+        </Grid>
+
+    </Grid>
+</Window>
